@@ -74,3 +74,4 @@ class DataManger:
         if yesterday_data["date_unix"] not in self.df["date_unix"].values:
             self.df.loc[len(self.df)] = yesterday_data
             self.df.to_csv(self.data_file, encoding="utf-8", index=False, header=True)
+            print(f"Added Day: {yesterday_data["date"]} to csv")
