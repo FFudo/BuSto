@@ -42,6 +42,10 @@ class DataManger:
 
     def set_yesterday(self):
         return self.today - timedelta(days=1)
+    
+    def update_days(self):
+        self.today = self.set_today()
+        self.yesterday = self.set_yesterday()
 
     def into_unix(self, day):
         return int(time.mktime(day.timetuple()))
@@ -53,6 +57,7 @@ class DataManger:
         return pd.read_csv(self.data_file)
 
     def add_yesterday(self):
+        self.update_days()
         data = self.request_yesterday_data()
         data = data["result"]["XXBTZEUR"][0]
         date_unix = data[0]
