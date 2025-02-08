@@ -11,6 +11,7 @@ class DataManger:
     def __init__(self):
         self.pair = PAIR
 
+        self.data_file = "./data.csv"
         self.today = self.set_today()
         self.yesterday = self.set_yesterday()
         self.df = self.set_df()
@@ -49,7 +50,7 @@ class DataManger:
         return datetime.fromtimestamp(time).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     def set_df(self):
-        return pd.read_csv("./data.csv")
+        return pd.read_csv(self.data_file)
 
     def add_yesterday(self):
         data = self.request_yesterday_data()
@@ -65,5 +66,6 @@ class DataManger:
             "low": low,
             "avg": (high + low) / 2,
         }
-        self.df.loc[len(self.df)] = yesterday_data
-        print(self.df)
+        if yesterday_data["date_unix"] not in self.df["date_unix"].values:
+            self.df.loc[len(self.df)] = yesterday_data
+            self.df.to_csv(self.data_file, encoding="utf-8", index=False, header=True)
