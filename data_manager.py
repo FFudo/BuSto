@@ -1,10 +1,10 @@
-import time
 from datetime import datetime, timedelta
 
 import pandas as pd
-import requests
 
 from config import PAIR
+from market_data_api import MarketApi
+from helper import into_day, into_unix
 
 
 class DataManger:
@@ -14,32 +14,14 @@ class DataManger:
         self.update_days()
         self.set_df()
 
+        self.market_api = MarketApi()
+
     def is_yesterday_missing(self) -> bool:
         self.update_days()
         if self.yesterday.strftime("%Y-%m-%d") not in self.df["date"].values:
             return True
 
         return False
-
-    def request_yesterday_data(self):
-        ohlc_url = "https://api.kraken.com/0/public/OHLC"
-
-        ohlc_params = {
-            "pair": self.pair,
-            "interval": 1440,
-            "since": self.into_unix(self.yesterday),
-        }
-        payload = {}
-        headers = {"Accept": "application/json"}
-
-        response = requests.request(
-            "GET",
-            url=ohlc_url,
-            headers=headers,
-            data=payload,
-            params=ohlc_params,
-        )
-        return response.json()
 
     def set_today(self):
         now = datetime.now()
@@ -52,25 +34,17 @@ class DataManger:
         self.today = self.set_today()
         self.yesterday = self.set_yesterday()
 
-    def into_unix(self, day):
-        return int(time.mktime(day.timetuple()))
-
-    def into_day(self, time):
-        return datetime.fromtimestamp(time).strftime("%Y-%m-%d")
-
     def set_df(self):
         self.df = pd.read_csv(self.data_file)
 
     def add_yesterday(self):
-        self.update_days()
-        data = self.request_yesterday_data()
-        data = data["result"]["XXBTZEUR"][0]
+        data = self.market_api.request_ohcl_data(into_unix(self.yesterday))
         date_unix = data[0]
         high = float(data[2])
         low = float(data[3])
         yesterday_data = {
             "pair": self.pair,
-            "date": self.into_day(date_unix),
+            "date": into_day(date_unix),
             "date_unix": date_unix,
             "high": high,
             "low": low,
