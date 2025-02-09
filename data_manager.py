@@ -10,11 +10,16 @@ from config import PAIR
 class DataManger:
     def __init__(self):
         self.pair = PAIR
-
         self.data_file = "./data.csv"
-        self.today = self.set_today()
-        self.yesterday = self.set_yesterday()
-        self.df = self.set_df()
+        self.update_days()
+        self.set_df()
+
+    def is_yesterday_missing(self) -> bool:
+        self.update_days()
+        if self.yesterday.strftime("%Y-%m-%d") not in self.df["date"].values:
+            return True
+
+        return False
 
     def request_yesterday_data(self):
         ohlc_url = "https://api.kraken.com/0/public/OHLC"
@@ -42,7 +47,7 @@ class DataManger:
 
     def set_yesterday(self):
         return self.today - timedelta(days=1)
-    
+
     def update_days(self):
         self.today = self.set_today()
         self.yesterday = self.set_yesterday()
@@ -51,10 +56,10 @@ class DataManger:
         return int(time.mktime(day.timetuple()))
 
     def into_day(self, time):
-        return datetime.fromtimestamp(time).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return datetime.fromtimestamp(time).strftime("%Y-%m-%d")
 
     def set_df(self):
-        return pd.read_csv(self.data_file)
+        self.df = pd.read_csv(self.data_file)
 
     def add_yesterday(self):
         self.update_days()
@@ -71,7 +76,7 @@ class DataManger:
             "low": low,
             "avg": (high + low) / 2,
         }
-        if yesterday_data["date_unix"] not in self.df["date_unix"].values:
-            self.df.loc[len(self.df)] = yesterday_data
-            self.df.to_csv(self.data_file, encoding="utf-8", index=False, header=True)
-            print(f"Added Day: {yesterday_data["date"]} to csv")
+
+        self.df.loc[len(self.df)] = yesterday_data
+        self.df.to_csv(self.data_file, encoding="utf-8", index=False, header=True)
+        print(f"Added Day: {yesterday_data["date"]} to csv")

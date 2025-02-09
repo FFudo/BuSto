@@ -1,14 +1,16 @@
 import time
 
-import schedule
-
 from data_manager import DataManger
 
-data_manager = DataManger()
-schedule.every().day.at("06:00").do(data_manager.add_yesterday)
-print("Check")
 
 if __name__ == "__main__":
+    data_manager = DataManger()
+    print("data manager started")
     while True:
-        schedule.run_pending()
-        time.sleep(60)
+        if data_manager.is_yesterday_missing():
+            data_manager.add_yesterday()
+        time.sleep(10)
+
+
+
+
