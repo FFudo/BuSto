@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from config import PAIR
-from market_data_api import MarketApi
 from helper import into_day, into_unix
+from market_data_api import MarketApi
 
 
 class DataManger:
@@ -39,6 +39,7 @@ class DataManger:
 
     def add_yesterday(self):
         data = self.market_api.request_ohcl_data(into_unix(self.yesterday))
+        print(data)
         date_unix = data[0]
         high = float(data[2])
         low = float(data[3])

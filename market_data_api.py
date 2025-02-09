@@ -24,5 +24,4 @@ class MarketApi:
             data=payload,
             params=ohlc_params,
         )
-
         return response.json()["result"]["XXBTZEUR"][0]
