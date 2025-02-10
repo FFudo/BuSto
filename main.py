@@ -9,6 +9,7 @@ if __name__ == "__main__":
     fund_manager = FundManager()
     discord_webhook = DiscordWebhook()
     print("DataManager started")
+    
     while True:
         data_manager.check_days()
 

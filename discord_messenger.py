@@ -7,7 +7,7 @@ class DiscordWebhook:
     def __init__(self):
         self.url = DISCORD_URL
         self.username = "BuSto"
-        self.avatar_url = "https://img.freepik.com/free-vector/ai-technology-robot-cyborg-design_24640-134415.jpg?t=st=1739204923~exp=1739208523~hmac=8c4abe816afb26747d5cbc9169a4a360e54d39bc52cd17d9064f4ef9e3225e1e&w=1380"
+        self.avatar_url = "https://img.freepik.com/free-vector/cute-robot-wearing-hat-flying-cartoon-vector-icon-illustration-science-technology-icon-isolated_138676-5186.jpg?t=st=1739218240~exp=1739221840~hmac=f48675c8a40c88148b55e38d7fd9fb3ae3de3bfbaf27b233ef551bdc08fab7c7&w=1380"
 
     def send_message(self, message: str):
         message = {
