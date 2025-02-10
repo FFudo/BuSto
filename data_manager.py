@@ -14,13 +14,14 @@ class DataManger:
 
         self.today = self.set_today()
         self.yesterday = self.set_yesterday()
-        self.update_threshold()
 
         self.set_df()
 
         self.threshold = 10
         self.cutoff_day = 15
         self.market_api = MarketApi()
+
+        self.update_threshold()
 
     def set_today(self):
         return datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -41,7 +42,8 @@ class DataManger:
             self.update_threshold()
 
     def update_threshold(self):
-        today = datetime.day
+        today = datetime.today().day
+        print(today)
         if 1 <= today <= self.cutoff_day:
             self.threshold = 10
         elif self.cutoff_day < today < (self.cutoff_day + self.threshold):
