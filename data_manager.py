@@ -11,7 +11,11 @@ class DataManger:
     def __init__(self):
         self.pair = PAIR
         self.data_file = "./data.csv"
-        self.check_days()
+
+        self.today = self.set_today()
+        self.yesterday = self.set_yesterday()
+        self.update_threshold()
+
         self.set_df()
 
         self.threshold = 10
@@ -72,4 +76,4 @@ class DataManger:
         seven_days_avg = last_7_days.mean()
         ask_price = float(self.market_api.request_ask_price())
         percentage = (100 * ask_price) / seven_days_avg
-        return percentage >= (100 - self.threshold)
+        return percentage <= (100 - self.threshold)
