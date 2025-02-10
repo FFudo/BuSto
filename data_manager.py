@@ -14,14 +14,9 @@ class DataManger:
         self.update_days()
         self.set_df()
 
+        self.last_buy = None
+        self.threshold = 10
         self.market_api = MarketApi()
-
-    def is_yesterday_missing(self) -> bool:
-        self.update_days()
-        if self.yesterday.strftime("%Y-%m-%d") not in self.df["date"].values:
-            return True
-
-        return False
 
     def set_today(self):
         now = datetime.now()
@@ -30,12 +25,19 @@ class DataManger:
     def set_yesterday(self):
         return self.today - timedelta(days=1)
 
+    def set_df(self):
+        self.df = pd.read_csv(self.data_file)
+
     def update_days(self):
         self.today = self.set_today()
         self.yesterday = self.set_yesterday()
 
-    def set_df(self):
-        self.df = pd.read_csv(self.data_file)
+    def is_yesterday_missing(self) -> bool:
+        self.update_days()
+        if self.yesterday.strftime("%Y-%m-%d") not in self.df["date"].values:
+            return True
+
+        return False
 
     def add_yesterday(self):
         data = self.market_api.request_ohcl_data(into_unix(self.yesterday))
@@ -55,3 +57,12 @@ class DataManger:
         self.df.loc[len(self.df)] = yesterday_data
         self.df.to_csv(self.data_file, encoding="utf-8", index=False, header=True)
         print(f"Added Day: {yesterday_data["date"]} to csv")
+
+    def is_price_low_enough(self):
+        last_7_days = pd.to_numeric(self.df["avg"].tail(7), errors='coerce')
+        seven_days_avg = last_7_days.mean()
+        ask_price = float(self.market_api.request_ask_price())
+        percentage = (100 * ask_price) / seven_days_avg
+        self.last_buy = ask_price
+
+        return percentage >= (100 - self.threshold)

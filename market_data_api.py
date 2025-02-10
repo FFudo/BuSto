@@ -26,7 +26,7 @@ class MarketApi:
         )
         return response.json()["result"]["XXBTZEUR"][0]
     
-    def request_ticker_data(self, pair="BTCEUR"):
+    def request_ask_price(self, pair="BTCEUR"):
         url = self.base_url + "Ticker"
 
         ohlc_params = {
