@@ -3,6 +3,7 @@ from datetime import datetime
 import pandas as pd
 
 from config import BUY_AMOUNT, PAIR
+from transaction_api import TransactionApi
 
 
 class FundManager:
@@ -10,16 +11,25 @@ class FundManager:
         self.buy_amount = BUY_AMOUNT
         self.pair = PAIR
         self.buy_price = None
-        self.transaction_columns = ["Date", "Time", "Pair", "Price", "Buy Amount"]
+        self.transaction_columns = [
+            "Date",
+            "Time",
+            "Pair",
+            "Price",
+            "Buy Amount",
+            "txid",
+        ]
+        self.transaction_api = TransactionApi()
         self.update_transaction()
 
-    def buy(self):
+    def buy(self, price):
         if not self.bought_this_month:
-            self.buy_price = 62000
-            self.log_transaction(self.buy_price)
+            self.buy_price = price
+            txid = self.transaction_api.add_buy_order()
+            self.log_transaction(txid)
             self.update_transaction()
 
-    def log_transaction(self, price):
+    def log_transaction(self, txid):
         now = datetime.now()
         today = now.strftime("%Y-%m-%d")
         time = now.strftime("%H:%M")
@@ -28,8 +38,9 @@ class FundManager:
                 "Date": [today],
                 "Time": [time],
                 "Pair": [self.pair],
-                "Price": [price],
+                "Price": [self.buy_price],
                 "Buy Amount": [self.buy_amount],
+                "txid": [txid],
             }
         )
 

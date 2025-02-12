@@ -1,6 +1,7 @@
 import time
+from datetime import datetime
 
-from config import PAIR
+from config import BUY_AMOUNT, PAIR
 from data_manager import DataManger
 from discord_messenger import DiscordWebhook
 from fund_manager import FundManager
@@ -9,8 +10,6 @@ if __name__ == "__main__":
     data_manager = DataManger()
     fund_manager = FundManager()
     discord_webhook = DiscordWebhook()
-
-    discord_webhook.send_message("Started up!")
 
     while True:
         data_manager.check_days()
@@ -30,9 +29,18 @@ if __name__ == "__main__":
 
         if not fund_manager.bought_this_month:
             if data_manager.is_price_low_enough():
-                fund_manager.buy()
+                price = data_manager.market_api.request_ask_price()
+                fund_manager.buy(price=price)
                 discord_webhook.send_message(
-                    f"Bought {PAIR} for {fund_manager.buy_price}"
+                    f"Bought {BUY_AMOUNT}€ of {PAIR} for {price}"
                 )
 
-        time.sleep(10)
+        current_time = datetime.now().time()
+        if current_time.hour in [6, 18] and current_time.minute == 30:
+            discord_webhook.send_message(
+                f"At the Moment {PAIR} is {data_manager.last_percentage}% compared to the last 7 days"
+            )
+            discord_webhook.send_message(
+                f"Bought this month is: {fund_manager.bought_this_month}"
+            )
+        time.sleep(15)
