@@ -48,7 +48,7 @@ class DataManger:
         elif self.cutoff_day < today < (self.cutoff_day + self.threshold):
             self.threshold -= 1
         else:
-            self.threshold = 0
+            self.threshold = -10
 
     def is_yesterday_missing(self) -> bool:
         if self.yesterday.strftime("%Y-%m-%d") not in self.df["date"].values:
@@ -72,11 +72,11 @@ class DataManger:
         self.df.loc[len(self.df)] = yesterday_data
         self.df.to_csv(self.data_file, encoding="utf-8", index=False, header=True)
         self.update_threshold()
-        
+
     def is_price_low_enough(self):
         percentage = self.get_percentage()
         return percentage <= (100 - self.threshold)
-    
+
     def get_percentage(self):
         last_7_days = pd.to_numeric(self.df["avg"].tail(7), errors="coerce")
         seven_days_avg = last_7_days.mean()

@@ -17,6 +17,7 @@ class FundManager:
         if not self.bought_this_month:
             self.buy_price = 62000
             self.log_transaction(self.buy_price)
+            self.update_transaction()
 
     def log_transaction(self, price):
         now = datetime.now()
