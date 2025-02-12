@@ -27,7 +27,7 @@ class TransactionApi:
                 "pair": PAIR,
                 "volume": BUY_AMOUNT,
                 "oflags": "viqc",
-                "validate": True,
+                "validate": False,
             }
         )
         return payload
