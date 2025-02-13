@@ -114,7 +114,6 @@ class TransactionApi:
         url = self.base_url + endpoint
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
-            print(response.json())
             return response.json()["result"]["refid"]
         except:
             return "Failed"
