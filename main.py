@@ -37,6 +37,8 @@ if __name__ == "__main__":
                 discord_webhook.send_message(
                     f"Bought {BUY_AMOUNT}€ of {PAIR} for {price}"
                 )
+                transfer_status = fund_manager.transaction_api.transfer_funds()
+                discord_webhook.send_message(f"Transfer status: {transfer_status}")
 
             current_time = datetime.now().time()
             if (

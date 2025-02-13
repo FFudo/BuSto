@@ -7,13 +7,12 @@ import urllib.parse
 
 import requests
 
-from config import BUY_AMOUNT, KRAKEN_API_KEY, KRAKEN_PRIVATE_KEY, PAIR
+from config import BTC_ADDRESS, BUY_AMOUNT, KRAKEN_API_KEY, KRAKEN_PRIVATE_KEY, PAIR
 
 
 class TransactionApi:
     def __init__(self):
         self.base_url = "https://api.kraken.com"
-        self.order_endpoint = "/0/private/AddOrder"
 
     def get_nonce(self):
         return str(int(time.time() * 1000))
@@ -34,6 +33,16 @@ class TransactionApi:
             payload = json.dumps(
                 {
                     "nonce": self.get_nonce(),
+                }
+            )
+        elif type == "transfer":
+            asset = "XXBT"
+            payload = json.dumps(
+                {
+                    "nonce": self.get_nonce(),
+                    "asset": asset,
+                    "key": "ledger_btc",
+                    "amount": self.get_account_balance(asset),
                 }
             )
         return payload
@@ -71,7 +80,7 @@ class TransactionApi:
         except:
             return "Failed"
 
-    def get_account_balance_eur(self) -> str:
+    def get_account_balance(self, balance_type) -> str:
         payload = self.construct_payload(type="balance")
         endpoint = "/0/private/Balance"
         signature = self.get_kraken_signature(endpoint, payload, KRAKEN_PRIVATE_KEY)
@@ -86,6 +95,26 @@ class TransactionApi:
         url = self.base_url + endpoint
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
-            return response.json()["result"]["ZEUR"]
+            return response.json()["result"][balance_type]
+        except:
+            return "Failed"
+
+    def transfer_funds(self):
+        payload = self.construct_payload(type="transfer")
+        endpoint = "/0/private/Withdraw"
+        signature = self.get_kraken_signature(endpoint, payload, KRAKEN_PRIVATE_KEY)
+
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "API-Key": KRAKEN_API_KEY,
+            "API-Sign": signature,
+        }
+
+        url = self.base_url + endpoint
+        try:
+            response = requests.request("POST", url, headers=headers, data=payload)
+            print(response.json())
+            return response.json()["result"]["refid"]
         except:
             return "Failed"

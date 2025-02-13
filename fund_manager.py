@@ -77,7 +77,7 @@ class FundManager:
             return False
         
     def is_funds_enough(self):
-        balance = float(self.transaction_api.get_account_balance_eur())
+        balance = float(self.transaction_api.get_account_balance("ZEUR"))
         if balance >= float(BUY_AMOUNT):
             self.funds_enough = True
             return True
