@@ -56,7 +56,6 @@ class DataManger:
         return False
 
     def add_yesterday(self):
-        self.last_percentage = self.get_percentage() - 100
         data = self.market_api.request_ohcl_data(into_unix(self.yesterday))
         date_unix = data[0]
         high = float(data[2])
@@ -75,6 +74,7 @@ class DataManger:
 
     def is_price_low_enough(self):
         percentage = self.get_percentage()
+        self.last_percentage = percentage - 100
         return percentage <= (100 - self.threshold)
 
     def get_percentage(self):

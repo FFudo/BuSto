@@ -10,6 +10,7 @@ class FundManager:
     def __init__(self):
         self.buy_amount = BUY_AMOUNT
         self.pair = PAIR
+        self.funds_enough = True
         self.buy_price = None
         self.transaction_columns = [
             "Date",
@@ -20,14 +21,14 @@ class FundManager:
             "txid",
         ]
         self.transaction_api = TransactionApi()
+        self.is_funds_enough()
         self.update_transaction()
 
     def buy(self, price):
-        if not self.bought_this_month:
-            self.buy_price = price
-            txid = self.transaction_api.add_buy_order()
-            self.log_transaction(txid)
-            self.update_transaction()
+        self.buy_price = price
+        txid = self.transaction_api.add_buy_order()
+        self.log_transaction(txid)
+        self.update_transaction()
 
     def log_transaction(self, txid):
         now = datetime.now()
@@ -73,4 +74,13 @@ class FundManager:
 
             return month_exists
         except FileNotFoundError:
+            return False
+        
+    def is_funds_enough(self):
+        balance = float(self.transaction_api.get_account_balance_eur())
+        if balance >= float(BUY_AMOUNT):
+            self.funds_enough = True
+            return True
+        else:
+            self.funds_enough = False
             return False

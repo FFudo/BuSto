@@ -18,18 +18,24 @@ class TransactionApi:
     def get_nonce(self):
         return str(int(time.time() * 1000))
 
-    def construct_payload(self):
-        payload = json.dumps(
-            {
-                "nonce": self.get_nonce(),
-                "ordertype": "market",
-                "type": "buy",
-                "pair": PAIR,
-                "volume": BUY_AMOUNT,
-                "oflags": "viqc",
-                "validate": False,
-            }
-        )
+    def construct_payload(self, type: str):
+        if type == "buy":
+            payload = json.dumps(
+                {
+                    "nonce": self.get_nonce(),
+                    "ordertype": "market",
+                    "type": "buy",
+                    "pair": PAIR,
+                    "volume": BUY_AMOUNT,
+                    "oflags": "viqc",
+                }
+            )
+        elif type == "balance":
+            payload = json.dumps(
+                {
+                    "nonce": self.get_nonce(),
+                }
+            )
         return payload
 
     def get_kraken_signature(self, urlpath, data, secret):
@@ -45,8 +51,8 @@ class TransactionApi:
         sigdigest = base64.b64encode(mac.digest())
         return sigdigest.decode()
 
-    def add_buy_order(self):
-        payload = self.construct_payload()
+    def add_buy_order(self) -> str:
+        payload = self.construct_payload(type="buy")
         endpoint = "/0/private/AddOrder"
         signature = self.get_kraken_signature(endpoint, payload, KRAKEN_PRIVATE_KEY)
 
@@ -60,7 +66,26 @@ class TransactionApi:
         url = self.base_url + endpoint
         try:
             response = requests.request("POST", url, headers=headers, data=payload)
-            return response["result"]["txid"][0]
+            return response.json()["result"]["txid"][0]
 
+        except:
+            return "Failed"
+
+    def get_account_balance_eur(self) -> str:
+        payload = self.construct_payload(type="balance")
+        endpoint = "/0/private/Balance"
+        signature = self.get_kraken_signature(endpoint, payload, KRAKEN_PRIVATE_KEY)
+
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "API-Key": KRAKEN_API_KEY,
+            "API-Sign": signature,
+        }
+
+        url = self.base_url + endpoint
+        try:
+            response = requests.request("POST", url, headers=headers, data=payload)
+            return response.json()["result"]["ZEUR"]
         except:
             return "Failed"
