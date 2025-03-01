@@ -21,7 +21,7 @@ if __name__ == "__main__":
             data_manager.add_yesterday()
             fund_manager.update_transaction()
             discord_webhook.send_message(
-                f"Just added {data_manager.yesterday} and set threshhold to {data_manager.threshold}%"
+                f"Just added {data_manager.yesterday} and set threshhold to -{data_manager.threshold}%"
             )
             discord_webhook.send_message(
                 f"At the Moment {PAIR} is {data_manager.last_percentage}% compared to the last 7 days"
@@ -30,7 +30,7 @@ if __name__ == "__main__":
                 f"Bought this month is: {fund_manager.bought_this_month}"
             )
 
-        if not fund_manager.bought_this_month and fund_manager.funds_enough:
+        if not fund_manager.bought_this_month and fund_manager.is_funds_enough():
             if data_manager.is_price_low_enough():
                 price = data_manager.market_api.request_ask_price()
                 fund_manager.buy(price=price)
@@ -50,7 +50,7 @@ if __name__ == "__main__":
                     f"At the Moment {PAIR} is {data_manager.last_percentage}% compared to the last 7 days"
                 )
                 discord_webhook.send_message(
-                    f"Bought this month is: {fund_manager.bought_this_month}"
+                    f"Threshhold: -{data_manager.threshold}%"
                 )
 
         time.sleep(sleep_time)

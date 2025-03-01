@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from config import PAIR
+from config import PAIR, TRESHHOLD
 from helper import into_day, into_unix
 from market_data_api import MarketApi
 
@@ -17,9 +17,9 @@ class DataManger:
 
         self.set_df()
 
-        self.threshold = 10
+        self.threshold = TRESHHOLD
         self.last_percentage = None
-        self.cutoff_day = 15
+        self.cutoff_day = 10
         self.market_api = MarketApi()
 
         self.update_threshold()
@@ -44,11 +44,11 @@ class DataManger:
     def update_threshold(self):
         today = datetime.today().day
         if 1 <= today <= self.cutoff_day:
-            self.threshold = 10
-        elif self.cutoff_day < today < (self.cutoff_day + self.threshold):
+            self.threshold = TRESHHOLD
+        elif self.cutoff_day < today < (self.cutoff_day + TRESHHOLD):
             self.threshold -= 1
         else:
-            self.threshold = -10
+            self.threshold = -TRESHHOLD
 
     def is_yesterday_missing(self) -> bool:
         if self.yesterday.strftime("%Y-%m-%d") not in self.df["date"].values:
